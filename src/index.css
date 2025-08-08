@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .neumorphic {
+    @apply bg-background shadow-neumorphic;
+  }
+  
+  .neumorphic-inset {
+    @apply bg-background shadow-neumorphic-inset;
+  }
+  
+  .neumorphic-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .neumorphic-hover:hover {
+    @apply shadow-neumorphic-hover;
+  }
+  
+  .neumorphic-pressed {
+    @apply shadow-neumorphic-pressed;
+  }
+  
+  .btn-neumorphic {
+    @apply neumorphic neumorphic-hover rounded-xl px-6 py-3 font-medium transition-all duration-200 ease-in-out;
+  }
+  
+  .btn-neumorphic:active {
+    @apply neumorphic-pressed;
+  }
+  
+  .btn-primary {
+    @apply btn-neumorphic bg-primary text-primary-foreground;
+  }
+  
+  .input-neumorphic {
+    @apply neumorphic-inset rounded-xl px-4 py-3 bg-background border-0 outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200;
+  }
+  
+  .card-neumorphic {
+    @apply neumorphic rounded-2xl p-6;
+  }
+}
