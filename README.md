@@ -1,5 +1,7 @@
 # https://traesgeumvid.vercel.app/ Acesse para testar a ferramenta.
 
+![Captura de Tela do Educational Narrative Generator](https://github.com/Vailoiro/Educational-Narrative-Generator/blob/main/Captura%20de%20tela%202025-08-08%20165448.png?raw=true)
+
 # 📰 Simulador de Narrativas
 
 > Uma ferramenta educativa para explorar diferentes perspectivas jornalísticas e desenvolver pensamento crítico sobre narrativas na mídia.
