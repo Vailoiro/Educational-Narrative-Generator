@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset localStorage</title>
+</head>
+<body>
+    <h1>Reset localStorage for Narrative Simulator</h1>
+    
+    <button onclick="resetStorage()">Reset All Data</button>
+    <button onclick="initTrialMode()">Initialize Trial Mode</button>
+    <button onclick="checkStorage()">Check Current State</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        function resetStorage() {
+            const keys = [
+                'narratives_api_key',
+                'narratives_session_id',
+                'narratives_history',
+                'narratives_usage',
+                'narratives_preferences'
+            ];
+            
+            keys.forEach(key => {
+                localStorage.removeItem(key);
+            });
+            
+            document.getElementById('output').innerHTML = '<p style="color: green;">All data cleared!</p>';
+        }
+        
+        function initTrialMode() {
+            // Clear everything first
+            resetStorage();
+            
+            // Set initial trial state
+            const preferences = {
+                freeAttemptsUsed: 0
+            };
+            
+            localStorage.setItem('narratives_preferences', JSON.stringify(preferences));
+            
+            document.getElementById('output').innerHTML = '<p style="color: blue;">Trial mode initialized with 2 free attempts!</p>';
+        }
+        
+        function checkStorage() {
+            const keys = [
+                'narratives_api_key',
+                'narratives_session_id',
+                'narratives_history',
+                'narratives_usage',
+                'narratives_preferences'
+            ];
+            
+            let html = '<h3>Current Storage State:</h3>';
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                html += `<p><strong>${key}:</strong> ${value || 'null'}</p>`;
+                
+                if (key === 'narratives_preferences' && value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        html += `<pre style="margin-left: 20px;">${JSON.stringify(parsed, null, 2)}</pre>`;
+                    } catch (e) {
+                        html += '<p style="color: red; margin-left: 20px;">Error parsing preferences</p>';
+                    }
+                }
+            });
+            
+            document.getElementById('output').innerHTML = html;
+        }
+        
+        // Check on load
+        checkStorage();
+    </script>
+</body>
+</html>

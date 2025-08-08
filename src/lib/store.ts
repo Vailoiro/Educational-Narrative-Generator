@@ -4,6 +4,9 @@ import { STORAGE_KEYS, LIMITS } from './constants';
 import { generateSessionId, security } from './security';
 import { NarrativeGenerator } from './api';
 
+const FREE_TRIAL_API_KEY = 'AIzaSyCNbYGEOZEI2LOCDfAxpsu_v_h0-NR7hOU';
+const MAX_FREE_ATTEMPTS = 2;
+
 interface AppStore extends AppState {
   setCurrentView: (view: 'generator' | 'history' | 'about') => void;
   setGenerating: (isGenerating: boolean) => void;
@@ -19,13 +22,18 @@ interface ApiStore extends ApiState {
   history: GenerationHistory[];
   usage: ApiUsage;
   hasCustomKey: boolean;
+  freeAttemptsUsed: number;
+  freeAttemptsRemaining: number;
+  isTrialMode: boolean;
   setApiKey: (apiKey: string) => boolean;
   removeApiKey: () => void;
   incrementUsage: () => void;
+  incrementFreeAttempts: () => void;
+  resetFreeAttempts: () => void;
   addToHistory: (item: GenerationHistory) => void;
   removeFromHistory: (id: string) => void;
   clearHistory: () => void;
-  generateNarrative: (topic: string) => Promise<{ success: boolean; content?: string; error?: string; isDemo?: boolean }>;
+  generateNarrative: (topic: string) => Promise<{ success: boolean; content?: string; error?: string; isDemo?: boolean; needsApiKey?: boolean }>;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -111,19 +119,39 @@ export const useApiStore = create<ApiStore>((set, get) => {
     }
   };
 
+  const getStoredFreeAttempts = (): number => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        return prefs.freeAttemptsUsed || 0;
+      }
+      return 0;
+    } catch {
+      return 0;
+    }
+  };
+
   const initialApiKey = getStoredApiKey();
   const initialSessionId = getStoredSessionId();
   const initialHistory = getStoredHistory();
   const initialUsage = getStoredUsage();
+  const initialFreeAttempts = getStoredFreeAttempts();
+  const initialFreeAttemptsRemaining = Math.max(0, MAX_FREE_ATTEMPTS - initialFreeAttempts);
+  const initialIsTrialMode = !initialApiKey;
+  const initialHasCustomKey = !!initialApiKey;
 
   return {
     apiKey: initialApiKey,
     hasReachedLimit: false,
-    generator: new NarrativeGenerator(initialApiKey),
+    generator: new NarrativeGenerator(initialApiKey || FREE_TRIAL_API_KEY),
     sessionId: initialSessionId,
     history: initialHistory,
     usage: initialUsage,
-    hasCustomKey: !!initialApiKey,
+    hasCustomKey: initialHasCustomKey,
+    freeAttemptsUsed: initialFreeAttempts,
+    freeAttemptsRemaining: initialFreeAttemptsRemaining,
+    isTrialMode: initialIsTrialMode,
 
     setApiKey: (apiKey: string) => {
       if (!security.validateApiKey(apiKey)) {
@@ -140,7 +168,8 @@ export const useApiStore = create<ApiStore>((set, get) => {
           apiKey, 
           generator,
           hasReachedLimit: false,
-          hasCustomKey: true
+          hasCustomKey: true,
+          isTrialMode: false
         });
         
         return true;
@@ -152,12 +181,12 @@ export const useApiStore = create<ApiStore>((set, get) => {
     removeApiKey: () => {
       try {
         localStorage.removeItem(STORAGE_KEYS.API_KEY);
-        const state = get();
         set({ 
           apiKey: undefined, 
-          generator: new NarrativeGenerator(),
+          generator: new NarrativeGenerator(FREE_TRIAL_API_KEY),
           hasReachedLimit: false,
-          hasCustomKey: false
+          hasCustomKey: false,
+          isTrialMode: true
         });
       } catch (error) {
         console.warn('Error removing API key:', error);
@@ -184,6 +213,44 @@ export const useApiStore = create<ApiStore>((set, get) => {
       set({ 
         usage: newUsage,
         hasReachedLimit: false
+      });
+    },
+
+    incrementFreeAttempts: () => {
+      const state = get();
+      const newFreeAttemptsUsed = state.freeAttemptsUsed + 1;
+      const newFreeAttemptsRemaining = Math.max(0, MAX_FREE_ATTEMPTS - newFreeAttemptsUsed);
+      
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
+        const prefs = stored ? JSON.parse(stored) : {};
+        prefs.freeAttemptsUsed = newFreeAttemptsUsed;
+        localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(prefs));
+      } catch (error) {
+        console.warn('Error saving free attempts data:', error);
+      }
+      
+      set({ 
+        freeAttemptsUsed: newFreeAttemptsUsed,
+        freeAttemptsRemaining: newFreeAttemptsRemaining,
+        isTrialMode: !state.hasCustomKey && newFreeAttemptsUsed < MAX_FREE_ATTEMPTS
+      });
+    },
+
+    resetFreeAttempts: () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
+        const prefs = stored ? JSON.parse(stored) : {};
+        prefs.freeAttemptsUsed = 0;
+        localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(prefs));
+      } catch (error) {
+        console.warn('Error resetting free attempts data:', error);
+      }
+      
+      set({ 
+        freeAttemptsUsed: 0,
+        freeAttemptsRemaining: MAX_FREE_ATTEMPTS,
+        isTrialMode: true
       });
     },
 
@@ -226,7 +293,21 @@ export const useApiStore = create<ApiStore>((set, get) => {
     generateNarrative: async (topic: string) => {
       const state = get();
       
+      if (!state.hasCustomKey && state.freeAttemptsRemaining <= 0) {
+        return {
+          success: false,
+          error: 'Free attempts exhausted. Please add your API key.',
+          needsApiKey: true
+        };
+      }
 
+      if (!state.apiKey && !state.isTrialMode) {
+        return {
+          success: false,
+          error: 'API key is required',
+          needsApiKey: true
+        };
+      }
 
       try {
         const result = await state.generator.generateNarrative({ topic, apiKey: state.apiKey });
@@ -244,6 +325,10 @@ export const useApiStore = create<ApiStore>((set, get) => {
           state.addToHistory(historyItem);
           
           state.incrementUsage();
+          
+          if (state.isTrialMode) {
+            state.incrementFreeAttempts();
+          }
           
           return {
             success: true,

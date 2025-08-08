@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug localStorage</title>
+</head>
+<body>
+    <h1>Debug localStorage</h1>
+    <div id="output"></div>
+    
+    <script>
+        function debugLocalStorage() {
+            const output = document.getElementById('output');
+            const keys = [
+                'narratives_api_key',
+                'narratives_session_id',
+                'narratives_history',
+                'narratives_usage',
+                'narratives_preferences'
+            ];
+            
+            let html = '<h2>LocalStorage Contents:</h2>';
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                html += `<p><strong>${key}:</strong> ${value || 'null'}</p>`;
+            });
+            
+            // Check preferences specifically
+            const prefs = localStorage.getItem('narratives_preferences');
+            if (prefs) {
+                try {
+                    const parsed = JSON.parse(prefs);
+                    html += '<h3>Preferences Details:</h3>';
+                    html += `<pre>${JSON.stringify(parsed, null, 2)}</pre>`;
+                } catch (e) {
+                    html += '<p>Error parsing preferences</p>';
+                }
+            }
+            
+            output.innerHTML = html;
+        }
+        
+        // Run on load
+        debugLocalStorage();
+        
+        // Add refresh button
+        const button = document.createElement('button');
+        button.textContent = 'Refresh';
+        button.onclick = debugLocalStorage;
+        document.body.appendChild(button);
+    </script>
+</body>
+</html>

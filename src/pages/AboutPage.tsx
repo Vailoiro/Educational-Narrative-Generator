@@ -189,7 +189,7 @@ export function AboutPage() {
           
           <div className="flex flex-wrap justify-center gap-4">
             <PulseButton
-              onClick={() => window.open('https://github.com', '_blank')}
+              onClick={() => window.open('https://github.com/Vailoiro/Educational-Narrative-Generator', '_blank')}
               className="flex items-center space-x-2"
             >
               <Github className="w-4 h-4" />
@@ -198,7 +198,7 @@ export function AboutPage() {
             </PulseButton>
             
             <PulseButton
-              onClick={() => window.open('https://docs.google.com', '_blank')}
+              onClick={() => window.open('https://github.com/Vailoiro/Educational-Narrative-Generator/blob/main/README.md', '_blank')}
               className="flex items-center space-x-2"
             >
               <BookOpen className="w-4 h-4" />

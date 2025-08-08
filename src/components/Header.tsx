@@ -1,6 +1,8 @@
+import React from 'react';
 import { Settings, BookOpen, History, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { PulseButton } from './GenerateButton';
+import { TrialCounter } from './TrialCounter';
 import type { AppView } from '../types';
 
 interface HeaderProps {
@@ -16,6 +18,8 @@ export function Header({
   onOpenConfig, 
   hasCustomApiKey
 }: HeaderProps) {
+
+
   const navItems = [
     {
       id: 'generator' as AppView,
@@ -97,6 +101,8 @@ export function Header({
             </nav>
 
             <div className="flex items-center space-x-2 ml-4">
+              <TrialCounter onConfigClick={onOpenConfig} />
+              
               <div className={cn(
                 "hidden sm:flex items-center space-x-2",
                 "px-3 py-1.5 rounded-lg",

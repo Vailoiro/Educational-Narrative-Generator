@@ -28,7 +28,9 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
   
   const {
     hasCustomKey, 
-    generateNarrative
+    generateNarrative,
+    isTrialMode,
+    freeAttemptsRemaining
   } = useApiStore();
 
   useEffect(() => {
@@ -51,8 +53,16 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
       return;
     }
 
-    if (!hasCustomKey) {
+    if (!hasCustomKey && !isTrialMode) {
       setError('Configure sua chave de API para usar o gerador.');
+      return;
+    }
+
+    if (isTrialMode && freeAttemptsRemaining <= 0) {
+      setError('Tentativas gratuitas esgotadas. Configure sua chave de API.');
+      if (onOpenConfig) {
+        setTimeout(() => onOpenConfig(), 1000);
+      }
       return;
     }
 
@@ -68,6 +78,10 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
         setTopic('');
       } else {
         setError(result.error || 'Erro ao gerar o artigo. Tente novamente.');
+        
+        if (result.needsApiKey && onOpenConfig) {
+          setTimeout(() => onOpenConfig(), 1000);
+        }
       }
     } catch (err) {
       setError('Erro inesperado. Verifique sua conexão e tente novamente.');
@@ -129,7 +143,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
         </p>
       </div>
 
-      {!hasCustomKey && (
+      {!hasCustomKey && isTrialMode && freeAttemptsRemaining > 0 && (
         <div className={cn(
           "mb-6 p-4 rounded-xl",
           "bg-blue-50/50 border border-blue-200/50",
@@ -144,7 +158,28 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
                 "hover:text-blue-900 cursor-pointer"
               )}
             >
-              Configure sua chave de API para uso ilimitado.
+              Você tem {freeAttemptsRemaining} tentativa{freeAttemptsRemaining !== 1 ? 's' : ''} gratuita{freeAttemptsRemaining !== 1 ? 's' : ''}. Configure sua chave de API para uso ilimitado.
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!hasCustomKey && (!isTrialMode || freeAttemptsRemaining <= 0) && (
+        <div className={cn(
+          "mb-6 p-4 rounded-xl",
+          "bg-red-50/50 border border-red-200/50",
+          "flex items-start space-x-3"
+        )}>
+          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-red-800">
+            <button
+              onClick={onOpenConfig}
+              className={cn(
+                "text-left hover:underline transition-all duration-200",
+                "hover:text-red-900 cursor-pointer"
+              )}
+            >
+              Tentativas gratuitas esgotadas. Configure sua chave de API para continuar.
             </button>
           </div>
         </div>
