@@ -1,3 +1,5 @@
+# https://traesgeumvid.vercel.app/ Acesse para testar a ferramenta.
+
 # 📰 Simulador de Narrativas
 
 > Uma ferramenta educativa para explorar diferentes perspectivas jornalísticas e desenvolver pensamento crítico sobre narrativas na mídia.
