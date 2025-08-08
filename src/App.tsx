@@ -77,13 +77,13 @@ function App() {
   const renderCurrentPage = () => {
     switch (currentView) {
       case 'generator':
-        return <GeneratorPage />;
+        return <GeneratorPage onOpenConfig={handleOpenConfig} />;
       case 'history':
         return <HistoryPage />;
       case 'about':
         return <AboutPage />;
       default:
-        return <GeneratorPage />;
+        return <GeneratorPage onOpenConfig={handleOpenConfig} />;
     }
   };
 

@@ -7,7 +7,11 @@ import { TopicInput } from '../components/TopicInput';
 import { GenerateButton, LoadingRing, PulseButton } from '../components/GenerateButton';
 import { ArticleDisplay } from '../components/ArticleDisplay';
 
-export function GeneratorPage() {
+interface GeneratorPageProps {
+  onOpenConfig?: () => void;
+}
+
+export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
   const [topic, setTopic] = useState('');
   const [topicError, setTopicError] = useState<string>();
   
@@ -133,9 +137,15 @@ export function GeneratorPage() {
         )}>
           <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="text-sm text-blue-800">
-            <p>
+            <button
+              onClick={onOpenConfig}
+              className={cn(
+                "text-left hover:underline transition-all duration-200",
+                "hover:text-blue-900 cursor-pointer"
+              )}
+            >
               Configure sua chave de API para uso ilimitado.
-            </p>
+            </button>
           </div>
         </div>
       )}
