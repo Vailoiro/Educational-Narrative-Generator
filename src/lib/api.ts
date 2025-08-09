@@ -3,6 +3,8 @@ import { GenerateRequest, GenerateResponse } from '../types';
 import { MASTER_PROMPT, API_CONFIG, ERROR_MESSAGES } from './constants';
 import { security, sanitizeApiResponse } from './security';
 import { getGeminiApiKey } from './supabase';
+import { rateLimiter } from './rateLimiter';
+import { auditLogger } from './auditLogger';
 
 
 
@@ -19,6 +21,23 @@ export class NarrativeGenerator {
 
   async generateNarrative(request: GenerateRequest): Promise<GenerateResponse> {
     try {
+      auditLogger.log('generation_attempt', { 
+        topic: request.topic,
+        hasCustomKey: !!request.apiKey 
+      });
+
+      const rateLimitCheck = rateLimiter.checkRateLimit('minute');
+      if (!rateLimitCheck.allowed) {
+        auditLogger.log('rate_limit_exceeded', {
+          rateLimitInfo: rateLimitCheck
+        });
+        return {
+          success: false,
+          content: '',
+          error: rateLimitCheck.message || 'Rate limit exceeded. Please try again later.',
+        };
+      }
+
       const sanitizedTopic = security.sanitizeInput(request.topic);
       
       if (!sanitizedTopic || sanitizedTopic.length < 3) {
@@ -81,12 +100,24 @@ export class NarrativeGenerator {
         };
       }
 
+      auditLogger.log('generation_success', {
+        topic: sanitizedTopic,
+        hasCustomKey: !!request.apiKey
+      });
+
       return {
         success: true,
         content: sanitizeApiResponse(content),
       };
     } catch (error) {
       console.error('Generation error:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      auditLogger.log('generation_failure', {
+        topic: request.topic,
+        error: errorMessage,
+        hasCustomKey: !!request.apiKey
+      });
       
       if (error instanceof Error) {
         if (error.message.includes('API_KEY')) {

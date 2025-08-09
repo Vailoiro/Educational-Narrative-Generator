@@ -3,6 +3,7 @@ import { cn } from '../lib/utils';
 import { validateTopic } from '../lib/security';
 import { getRandomDemoTopics } from '../lib/constants';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguageStore } from '../lib/store';
 
 interface TopicInputProps {
   value: string;
@@ -22,15 +23,28 @@ export function TopicInput({
   error: externalError
 }: TopicInputProps) {
   const { t } = useTranslation();
+  const { currentLanguage } = useLanguageStore();
   const [internalError, setInternalError] = useState<string>();
   const error = externalError || internalError;
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const defaultPlaceholder = placeholder || t('topicInput.placeholder');
+  const placeholderExamples = t('topicInput.placeholderExamples') as string[];
+  const defaultPlaceholder = placeholder || placeholderExamples[currentPlaceholderIndex] || t('topicInput.placeholder');
   
-  const dynamicTopics = useMemo(() => getRandomDemoTopics(5), []);
+  const dynamicTopics = useMemo(() => getRandomDemoTopics(5, currentLanguage), [currentLanguage]);
+
+  useEffect(() => {
+    if (!placeholder && placeholderExamples.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentPlaceholderIndex((prev) => (prev + 1) % placeholderExamples.length);
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [placeholder, placeholderExamples.length]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -93,7 +107,7 @@ export function TopicInput({
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-lg mx-auto">
+    <div ref={containerRef} className="relative w-full max-w-2xl mx-auto">
       <div className="relative">
         <input
           ref={inputRef}
@@ -105,7 +119,7 @@ export function TopicInput({
           disabled={disabled}
           placeholder={defaultPlaceholder}
           className={cn(
-            "input-neumorphic w-full text-center font-medium py-4 px-6 text-lg",
+            "input-neumorphic w-full text-center font-medium py-5 px-8 text-xl",
             "placeholder:text-muted-foreground/60",
             "disabled:opacity-50 disabled:cursor-not-allowed",
             error && "ring-2 ring-red-500/20 shadow-neumorphic-inset"
@@ -123,11 +137,11 @@ export function TopicInput({
               inputRef.current?.focus();
             }}
             className={cn(
-              "absolute right-3 top-1/2 -translate-y-1/2",
-              "w-5 h-5 rounded-full bg-muted-foreground/20",
+              "absolute right-4 top-1/2 -translate-y-1/2",
+              "w-6 h-6 rounded-full bg-muted-foreground/20",
               "flex items-center justify-center",
               "hover:bg-muted-foreground/30 transition-colors",
-              "text-xs text-muted-foreground hover:text-foreground"
+              "text-sm text-muted-foreground hover:text-foreground"
             )}
             disabled={disabled}
             type="button"
@@ -138,29 +152,29 @@ export function TopicInput({
       </div>
 
       {error && (
-        <p className="mt-2 text-sm text-red-600 text-center font-medium">
+        <p className="mt-3 text-base text-red-600 text-center font-medium">
           {error}
         </p>
       )}
 
       {showSuggestions && (
         <div className={cn(
-          "absolute top-full left-0 right-0 mt-2 z-10",
+          "absolute top-full left-0 right-0 mt-3 z-10",
           "card-neumorphic bg-background/95 backdrop-blur-sm",
           "border border-border/50"
         )}>
-          <div className="p-3">
-            <p className="text-xs text-muted-foreground mb-3 font-medium">
+          <div className="p-4">
+            <p className="text-sm text-muted-foreground mb-4 font-medium">
               {t('topicInput.suggestions')}
             </p>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {dynamicTopics.map((topic, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(topic)}
                   className={cn(
-                    "w-full text-left px-3 py-2 rounded-lg",
-                    "text-sm text-foreground/80",
+                    "w-full text-left px-4 py-3 rounded-lg",
+                    "text-base text-foreground/80",
                     "hover:bg-primary/10 hover:text-foreground",
                     "transition-colors duration-150",
                     "focus:outline-none focus:bg-primary/10"

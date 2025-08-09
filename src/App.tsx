@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { cn } from './lib/utils';
 import { useAppStore, useApiStore } from './lib/store';
+import { useTranslation } from './hooks/useTranslation';
+import { useAttemptChecker } from './hooks/useAttemptChecker';
 import { Header, MobileNav } from './components/Header';
 import { ConfigModal } from './components/ConfigModal';
 import { GeneratorPage } from './pages/GeneratorPage';
@@ -9,6 +11,7 @@ import { AboutPage } from './pages/AboutPage';
 import type { AppView } from './types';
 
 function App() {
+  const { t } = useTranslation();
   const { 
     currentView, 
     isConfigModalOpen, 
@@ -23,6 +26,8 @@ function App() {
     removeApiKey,
     history 
   } = useApiStore();
+
+  useAttemptChecker();
 
   useEffect(() => {
     console.log('[App] Store initialization check:');
@@ -134,7 +139,7 @@ function App() {
             "transition-all duration-200",
             "hover:scale-110 active:scale-95"
           )}
-          title="Configurações"
+          title={t('common.settings')}
         >
           <span className="text-lg">⚙️</span>
         </button>
@@ -168,6 +173,8 @@ export function ErrorBoundary({
 }
 
 export function LoadingScreen() {
+  const { t } = useTranslation();
+  
   return (
     <div className={cn(
       "fixed inset-0 z-50",
@@ -184,11 +191,11 @@ export function LoadingScreen() {
         </div>
         
         <h2 className="font-display font-semibold text-foreground mb-2">
-          Carregando...
+          {t('common.loadingTitle')}
         </h2>
         
         <p className="text-sm text-muted-foreground">
-          Preparando o simulador de narrativas
+          {t('common.loadingSubtitle')}
         </p>
       </div>
     </div>

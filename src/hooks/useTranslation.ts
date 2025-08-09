@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { useLanguageStore } from '../lib/store';
 import { getTranslations, Translations } from '../lib/translations';
-import { SUPPORTED_LANGUAGES } from '../lib/constants';
+import { SUPPORTED_LANGUAGES } from '../lib/translations';
 
-function getNestedProperty(obj: any, path: string): string {
-  return path.split('.').reduce((current, key) => current?.[key], obj) || path;
+function getNestedProperty(obj: any, path: string): any {
+  const result = path.split('.').reduce((current, key) => current?.[key], obj);
+  return result !== undefined ? result : path;
 }
 
 function interpolateString(template: string, variables: Record<string, any> = {}): string {
@@ -31,15 +32,15 @@ export function useTranslation() {
   }, [currentLanguage]);
 
   const t = useMemo(() => {
-    return (key: string, variables?: Record<string, any>): string => {
-      let template = getNestedProperty(translations, key);
+    return (key: string, variables?: Record<string, any>): any => {
+      let result = getNestedProperty(translations, key);
       
-      if (variables) {
-        template = handlePluralization(template, variables);
-        template = interpolateString(template, variables);
+      if (typeof result === 'string' && variables) {
+        result = handlePluralization(result, variables);
+        result = interpolateString(result, variables);
       }
       
-      return template;
+      return result;
     };
   }, [translations]);
 

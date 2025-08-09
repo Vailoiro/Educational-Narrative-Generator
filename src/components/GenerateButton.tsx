@@ -30,14 +30,14 @@ export function GenerateButton({
   };
 
   return (
-    <div className="flex flex-col items-center space-y-3">
+    <div className="flex flex-col items-center space-y-4">
       <button
         onClick={onClick}
         disabled={isDisabled}
         className={cn(
           "btn-primary relative overflow-hidden",
-          "min-w-[200px] h-12",
-          "font-semibold text-base",
+          "min-w-[250px] h-14",
+          "font-semibold text-lg",
           "focus:outline-none focus:ring-2 focus:ring-primary/30",
           loading && "animate-pulse-ring",
           isDisabled && "opacity-50 cursor-not-allowed",
@@ -46,11 +46,11 @@ export function GenerateButton({
         type="button"
       >
         <span className={cn(
-          "flex items-center justify-center space-x-2",
+          "flex items-center justify-center space-x-3",
           "transition-all duration-200"
         )}>
           {loading && (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin" />
           )}
           <span>{getButtonText()}</span>
         </span>
@@ -66,14 +66,14 @@ export function GenerateButton({
       
       <div className="text-center">
         <p className={cn(
-          "text-xs font-medium",
+          "text-sm font-medium",
           hasCustomKey ? "text-primary" : "text-muted-foreground"
         )}>
           {getUsageText()}
         </p>
         
         {!hasCustomKey && (
-          <p className="text-xs text-blue-600 mt-1 font-medium">
+          <p className="text-sm text-blue-600 mt-1 font-medium">
             {t('generator.apiKeyRequired')}
           </p>
         )}
@@ -86,12 +86,12 @@ export function LoadingRing() {
   return (
     <div className="relative">
       <div className={cn(
-        "w-16 h-16 rounded-full",
+        "w-20 h-20 rounded-full",
         "bg-background shadow-neumorphic-inset",
         "flex items-center justify-center"
       )}>
         <div className={cn(
-          "w-8 h-8 rounded-full border-2 border-primary/30",
+          "w-10 h-10 rounded-full border-2 border-primary/30",
           "border-t-primary animate-spin"
         )} />
       </div>

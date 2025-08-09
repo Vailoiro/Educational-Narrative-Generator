@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { AppState, ApiState, GenerationHistory, ApiUsage } from '../types';
-import { STORAGE_KEYS, LIMITS, SUPPORTED_LANGUAGES, Language } from './constants';
+import { STORAGE_KEYS, LIMITS } from './constants';
+import { SUPPORTED_LANGUAGES, Language } from './translations';
 import { generateSessionId, security } from './security';
 import { NarrativeGenerator } from './api';
+import { auditLogger } from './auditLogger';
+import { backendApi, AttemptStatus } from './backendApi';
 
-const FREE_TRIAL_API_KEY = 'AIzaSyCNbYGEOZEI2LOCDfAxpsu_v_h0-NR7hOU';
 const MAX_FREE_ATTEMPTS = 2;
 
 interface AppStore extends AppState {
@@ -25,6 +27,8 @@ interface ApiStore extends ApiState {
   freeAttemptsUsed: number;
   freeAttemptsRemaining: number;
   isTrialMode: boolean;
+  backendAttemptStatus: AttemptStatus | null;
+  isCheckingAttempts: boolean;
   setApiKey: (apiKey: string) => boolean;
   removeApiKey: () => void;
   incrementUsage: () => void;
@@ -33,6 +37,7 @@ interface ApiStore extends ApiState {
   addToHistory: (item: GenerationHistory) => void;
   removeFromHistory: (id: string) => void;
   clearHistory: () => void;
+  checkBackendAttempts: () => Promise<void>;
   generateNarrative: (topic: string) => Promise<{ success: boolean; content?: string; error?: string; isDemo?: boolean; needsApiKey?: boolean }>;
 }
 
@@ -144,7 +149,7 @@ export const useApiStore = create<ApiStore>((set, get) => {
   return {
     apiKey: initialApiKey,
     hasReachedLimit: false,
-    generator: new NarrativeGenerator(initialApiKey || FREE_TRIAL_API_KEY),
+    generator: new NarrativeGenerator(initialApiKey),
     sessionId: initialSessionId,
     history: initialHistory,
     usage: initialUsage,
@@ -152,6 +157,8 @@ export const useApiStore = create<ApiStore>((set, get) => {
     freeAttemptsUsed: initialFreeAttempts,
     freeAttemptsRemaining: initialFreeAttemptsRemaining,
     isTrialMode: initialIsTrialMode,
+    backendAttemptStatus: null,
+    isCheckingAttempts: false,
 
     setApiKey: (apiKey: string) => {
       if (!security.validateApiKey(apiKey)) {
@@ -164,6 +171,10 @@ export const useApiStore = create<ApiStore>((set, get) => {
         
         const generator = new NarrativeGenerator(apiKey);
         
+        auditLogger.log('api_key_configured', {
+          hasCustomKey: true
+        });
+
         set({ 
           apiKey, 
           generator,
@@ -181,9 +192,14 @@ export const useApiStore = create<ApiStore>((set, get) => {
     removeApiKey: () => {
       try {
         localStorage.removeItem(STORAGE_KEYS.API_KEY);
+        
+        auditLogger.log('api_key_removed', {
+          hasCustomKey: false
+        });
+
         set({ 
           apiKey: undefined, 
-          generator: new NarrativeGenerator(FREE_TRIAL_API_KEY),
+          generator: new NarrativeGenerator(),
           hasReachedLimit: false,
           hasCustomKey: false,
           isTrialMode: true
@@ -288,6 +304,31 @@ export const useApiStore = create<ApiStore>((set, get) => {
       }
       
       set({ history: [] });
+    },
+
+    checkBackendAttempts: async () => {
+      const state = get();
+      
+      if (state.isCheckingAttempts) {
+        return;
+      }
+      
+      set({ isCheckingAttempts: true });
+      
+      try {
+        const attemptStatus = await backendApi.checkAttemptStatus(state.hasCustomKey);
+        
+        if (attemptStatus) {
+          set({ 
+            backendAttemptStatus: attemptStatus,
+            freeAttemptsRemaining: attemptStatus.hasCustomKey ? -1 : attemptStatus.remaining
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to check backend attempts:', error);
+      } finally {
+        set({ isCheckingAttempts: false });
+      }
     },
 
     generateNarrative: async (topic: string) => {

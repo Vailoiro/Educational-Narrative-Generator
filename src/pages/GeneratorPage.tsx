@@ -31,8 +31,14 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
     hasCustomKey, 
     generateNarrative,
     isTrialMode,
-    freeAttemptsRemaining
+    freeAttemptsRemaining,
+    backendAttemptStatus,
+    isCheckingAttempts
   } = useApiStore();
+
+  const effectiveAttemptsRemaining = backendAttemptStatus 
+    ? (backendAttemptStatus.hasCustomKey ? -1 : backendAttemptStatus.remaining)
+    : freeAttemptsRemaining;
   
   const { t } = useTranslation();
 
@@ -47,12 +53,12 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
-      setTopicError('Por favor, insira um tópico.');
+      setTopicError(t('generator.topicRequired'));
       return;
     }
 
     if (topic.trim().length < 3) {
-      setTopicError('O tópico deve ter pelo menos 3 caracteres.');
+      setTopicError(t('generator.topicTooShort'));
       return;
     }
 
@@ -61,7 +67,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
       return;
     }
 
-    if (isTrialMode && freeAttemptsRemaining <= 0) {
+    if (isTrialMode && effectiveAttemptsRemaining <= 0) {
       setError('Tentativas gratuitas esgotadas. Configure sua chave de API.');
       if (onOpenConfig) {
         setTimeout(() => onOpenConfig(), 1000);
@@ -87,7 +93,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
         }
       }
     } catch (err) {
-      setError('Erro inesperado. Verifique sua conexão e tente novamente.');
+      setError(t('generator.unexpectedError'));
       console.error('Generation error:', err);
     } finally {
       setGenerating(false);
@@ -112,7 +118,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <ArticleDisplay
           article={currentArticle}
-          topic={currentTopic || 'Tópico não especificado'}
+          topic={currentTopic || t('generator.unspecifiedTopic')}
           timestamp={new Date()}
           onNewGeneration={handleNewGeneration}
           isDemo={!hasCustomKey}
@@ -123,30 +129,30 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <div className="text-center mb-8">
+      <div className="text-center mb-10">
         <div className={cn(
-          "w-16 h-16 mx-auto mb-4 rounded-2xl",
+          "w-20 h-20 mx-auto mb-5 rounded-2xl",
           "bg-gradient-to-br from-primary to-primary/80",
           "flex items-center justify-center",
           "shadow-neumorphic animate-pulse-ring"
         )}>
-          <Sparkles className="w-8 h-8 text-white" />
+          <Sparkles className="w-10 h-10 text-white" />
         </div>
         
         <h1 className={cn(
-          "font-display font-bold text-3xl mb-3",
+          "font-display font-bold text-4xl mb-4",
           "bg-gradient-to-r from-foreground to-foreground/80",
           "bg-clip-text text-transparent"
         )}>
           {t('generator.title')}
         </h1>
         
-        <p className="text-muted-foreground text-lg leading-relaxed max-w-lg mx-auto">
+        <p className="text-muted-foreground text-xl leading-relaxed max-w-2xl mx-auto">
           {t('generator.subtitle')}
         </p>
       </div>
 
-      {!hasCustomKey && isTrialMode && freeAttemptsRemaining > 0 && (
+      {!hasCustomKey && isTrialMode && effectiveAttemptsRemaining > 0 && (
         <div className={cn(
           "mb-6 p-4 rounded-xl",
           "bg-blue-50/50 border border-blue-200/50",
@@ -161,20 +167,23 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
                 "hover:text-blue-900 cursor-pointer"
               )}
             >
-              {t('generator.freeTrialMessage', { count: freeAttemptsRemaining })}
+              {t('generator.freeTrialMessage', { count: effectiveAttemptsRemaining })}
+              {isCheckingAttempts && (
+                <span className="ml-2 text-xs opacity-70">(verificando...)</span>
+              )}
             </button>
           </div>
         </div>
       )}
 
-      {!hasCustomKey && (!isTrialMode || freeAttemptsRemaining <= 0) && (
+      {!hasCustomKey && (!isTrialMode || effectiveAttemptsRemaining <= 0) && (
         <div className={cn(
-          "mb-6 p-4 rounded-xl",
+          "mb-8 p-5 rounded-xl",
           "bg-red-50/50 border border-red-200/50",
-          "flex items-start space-x-3"
+          "flex items-start space-x-4"
         )}>
-          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-red-800">
+          <AlertCircle className="w-6 h-6 text-red-600 mt-0.5 flex-shrink-0" />
+          <div className="text-base text-red-800">
             <button
               onClick={onOpenConfig}
               className={cn(
@@ -188,25 +197,25 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         <TopicInput
           value={topic}
           onChange={handleTopicChange}
           onSubmit={handleGenerate}
           error={topicError}
           disabled={isGenerating}
-          placeholder="Ex: Impactos da inteligência artificial na educação"
+          placeholder={t('generator.placeholder')}
         />
 
         {error && (
           <div className={cn(
-            "p-4 rounded-xl",
+            "p-5 rounded-xl",
             "bg-red-50/50 border border-red-200/50",
-            "flex items-start space-x-3",
+            "flex items-start space-x-4",
             "animate-in slide-in-from-top-2 duration-300"
           )}>
-            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-red-800">
+            <AlertCircle className="w-6 h-6 text-red-600 mt-0.5 flex-shrink-0" />
+            <div className="text-base text-red-800">
               <p className="font-medium mb-1">{t('generator.errorTitle')}</p>
               <p>{error}</p>
             </div>
@@ -244,7 +253,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
           "text-sm text-muted-foreground"
         )}>
           <Sparkles className="w-4 h-4" />
-          <span>Powered by Google Gemini AI</span>
+          <span>{t('generator.poweredBy')}</span>
         </div>
       </div>
 

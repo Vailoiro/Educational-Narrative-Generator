@@ -1,3 +1,5 @@
+import { getTranslations, SUPPORTED_LANGUAGES, Language } from './translations';
+
 export const MASTER_PROMPT = `Você é um correspondente sênior da agência de notícias Reuters, escrevendo um despacho urgente. Sua tarefa é redigir uma notícia jornalística completa e leve de ler, sóbrio, e galhofa ao mesmo tempo, e neutro sobre o tema fornecido pelo usuário. Siga TODAS as seguintes diretrizes com rigor absoluto e sem exceções:
 
 1. **Título e Formato:** Crie um título impactante, porém sóbrio. Estruture todo o texto como uma pirâmide invertida, começando com a informação mais crucial no primeiro parágrafo.
@@ -34,13 +36,6 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'narratives_language',
 } as const;
 
-export const SUPPORTED_LANGUAGES = {
-  PT: 'pt-BR',
-  EN: 'en-US',
-} as const;
-
-export type Language = typeof SUPPORTED_LANGUAGES[keyof typeof SUPPORTED_LANGUAGES];
-
 export const LIMITS = {
   TOPIC_MAX_LENGTH: 200,
   TOPIC_MIN_LENGTH: 3,
@@ -48,41 +43,10 @@ export const LIMITS = {
 
 export const GOOGLE_AI_STUDIO_URL = 'https://aistudio.google.com/app/apikey';
 
-export const ALL_DEMO_TOPICS = [
-  'Descoberta de uma nova cor primária',
-  'Cientistas confirmam que plantas podem fazer fotossíntese no escuro',
-  'Arqueólogos encontram evidências de que dinossauros usavam ferramentas',
-  'Físicos descobrem que a gravidade funciona ao contrário às quintas-feiras',
-  'Pesquisadores comprovam que gatos domésticos são alienígenas disfarçados',
-  'Biólogos descobrem que árvores se comunicam através de redes sociais',
-  'Matemáticos provam que 2+2 pode ser igual a 5 em certas condições',
-  'Oceanógrafos encontram civilização perdida no fundo do oceano',
-  'Astrônomos detectam planeta feito inteiramente de chocolate',
-  'Linguistas descobrem idioma universal falado por todos os animais',
-  'Geólogos confirmam que montanhas crescem durante a lua cheia',
-  'Neurocientistas descobrem que sonhos podem ser baixados como arquivos',
-  'Químicos criam elemento que torna objetos invisíveis',
-  'Antropólogos encontram evidências de que humanos antigos voavam',
-  'Meteorologistas descobrem como controlar o clima com música clássica',
-  'Botânicos criam plantas que produzem energia elétrica',
-  'Zoólogos descobrem que pinguins são na verdade robôs da natureza',
-  'Físicos quânticos provam que o tempo anda para trás aos domingos',
-  'Arqueólogos descobrem biblioteca com livros do futuro',
-  'Biólogos marinhos encontram peixes que falam 12 idiomas',
-  'Engenheiros criam máquina que transforma pensamentos em realidade',
-  'Psicólogos descobrem que rir por 10 minutos equivale a 2 horas de exercício',
-  'Historiadores encontram evidências de que pirâmides eram estações espaciais',
-  'Cientistas da computação criam IA que resolve problemas dormindo',
-  'Ecologistas descobrem floresta que se move 50km por ano',
-  'Médicos descobrem que cantar ópera cura resfriados instantaneamente',
-  'Engenheiros desenvolvem ponte que se constrói sozinha',
-  'Paleontólogos descobrem que dinossauros tinham redes sociais primitivas',
-  'Físicos criam portal que conecta geladeiras do mundo todo',
-  'Sociólogos descobrem que sociedades funcionam melhor com música ambiente'
-];
-
-export function getRandomDemoTopics(count: number = 5): string[] {
-  const shuffled = [...ALL_DEMO_TOPICS].sort(() => Math.random() - 0.5);
+export function getRandomDemoTopics(count: number = 5, language: Language = SUPPORTED_LANGUAGES.PT): string[] {
+  const translations = getTranslations(language);
+  const topics = translations.demoTopics;
+  const shuffled = [...topics].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
 

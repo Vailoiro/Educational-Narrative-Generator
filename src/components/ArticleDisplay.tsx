@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Copy, RotateCcw, Check, ExternalLink, Calendar, User } from 'lucide-react';
 import { cn, copyToClipboard, formatDate } from '../lib/utils';
 import { PulseButton } from './GenerateButton';
+import { useTranslation } from '../hooks/useTranslation';
 import type { GenerationHistory } from '../types';
 
 interface ArticleDisplayProps {
@@ -19,6 +20,7 @@ export function ArticleDisplay({
   onNewGeneration, 
   isDemo = false 
 }: ArticleDisplayProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -33,7 +35,7 @@ export function ArticleDisplay({
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `Artigo sobre: ${topic}`,
+        title: `${t('articleDisplay.topic')} ${topic}`,
         text: article,
       }).catch(() => {
         handleCopy();
@@ -59,7 +61,7 @@ export function ArticleDisplay({
         )}>
           <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
           <span className="text-sm font-medium text-amber-800">
-            Artigo de demonstração - Configure sua API para conteúdo personalizado
+            {t('articleDisplay.demoMessage')}
           </span>
         </div>
       )}
@@ -75,7 +77,7 @@ export function ArticleDisplay({
             </div>
             <div>
               <h3 className="font-display font-semibold text-foreground">
-                Artigo Gerado
+                {t('articleDisplay.generatedArticle')}
               </h3>
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                 <Calendar className="w-3 h-3" />
@@ -89,7 +91,7 @@ export function ArticleDisplay({
             "bg-muted/30 border border-muted"
           )}>
             <span className="text-sm font-medium text-muted-foreground">
-              Tópico: 
+              {t('articleDisplay.topic')} 
             </span>
             <span className="text-sm text-foreground">
               {topic}
@@ -120,7 +122,7 @@ export function ArticleDisplay({
                 "underline underline-offset-2"
               )}
             >
-              {isExpanded ? 'Mostrar menos' : 'Mostrar mais'}
+              {isExpanded ? t('articleDisplay.showLess') : t('articleDisplay.showMore')}
             </button>
           </div>
         )}
@@ -137,12 +139,12 @@ export function ArticleDisplay({
           {copied ? (
             <>
               <Check className="w-4 h-4" />
-              <span>Copiado!</span>
+              <span>{t('articleDisplay.copied')}</span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span>Copiar</span>
+              <span>{t('articleDisplay.copy')}</span>
             </>
           )}
         </PulseButton>
@@ -152,7 +154,7 @@ export function ArticleDisplay({
           className="flex items-center space-x-2 flex-1 min-w-[120px]"
         >
           <ExternalLink className="w-4 h-4" />
-          <span>Compartilhar</span>
+          <span>{t('articleDisplay.share')}</span>
         </PulseButton>
 
         <PulseButton
@@ -163,7 +165,7 @@ export function ArticleDisplay({
           )}
         >
           <RotateCcw className="w-4 h-4" />
-          <span>Nova Geração</span>
+          <span>{t('articleDisplay.newGeneration')}</span>
         </PulseButton>
       </div>
     </div>
@@ -177,6 +179,7 @@ export function ArticleHistory({
   history: GenerationHistory[]; 
   onSelectArticle: (article: GenerationHistory) => void; 
 }) {
+  const { t } = useTranslation();
   if (history.length === 0) {
     return (
       <div className={cn(
@@ -186,8 +189,8 @@ export function ArticleHistory({
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/20 flex items-center justify-center">
           <User className="w-8 h-8" />
         </div>
-        <p className="font-medium">Nenhum artigo gerado ainda</p>
-        <p className="text-sm mt-1">Seus artigos aparecerão aqui após a geração</p>
+        <p className="font-medium">{t('articleDisplay.noArticlesYet')}</p>
+        <p className="text-sm mt-1">{t('articleDisplay.articlesWillAppear')}</p>
       </div>
     );
   }
@@ -195,7 +198,7 @@ export function ArticleHistory({
   return (
     <div className="space-y-3">
       <h3 className="font-display font-semibold text-foreground mb-4">
-        Histórico de Gerações
+        {t('articleDisplay.generationHistory')}
       </h3>
       
       {history.slice(0, 5).map((item) => (
@@ -227,7 +230,7 @@ export function ArticleHistory({
       
       {history.length > 5 && (
         <p className="text-xs text-muted-foreground text-center mt-3">
-          Mostrando os 5 artigos mais recentes
+          {t('articleDisplay.showingRecent')}
         </p>
       )}
     </div>

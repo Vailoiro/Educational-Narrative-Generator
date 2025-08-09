@@ -1,4 +1,9 @@
-import { SUPPORTED_LANGUAGES, Language } from './constants';
+export const SUPPORTED_LANGUAGES = {
+  PT: 'pt-BR',
+  EN: 'en-US',
+} as const;
+
+export type Language = typeof SUPPORTED_LANGUAGES[keyof typeof SUPPORTED_LANGUAGES];
 
 export interface Translations {
   header: {
@@ -40,6 +45,8 @@ export interface Translations {
     configureApi: string;
     unlimitedUsage: string;
     apiKeyRequired: string;
+    poweredBy: string;
+    unspecifiedTopic: string;
     emptyState: {
       title: string;
       description: string;
@@ -56,6 +63,7 @@ export interface Translations {
   topicInput: {
     label: string;
     placeholder: string;
+    placeholderExamples: string[];
     examples: string;
     generate: string;
     generating: string;
@@ -69,6 +77,16 @@ export interface Translations {
     copyArticle: string;
     copied: string;
     shareArticle: string;
+    demoMessage: string;
+    generatedArticle: string;
+    showMore: string;
+    showLess: string;
+    copy: string;
+    share: string;
+    noArticlesYet: string;
+    articlesWillAppear: string;
+    generationHistory: string;
+    showingRecent: string;
   };
   configModal: {
     title: string;
@@ -208,12 +226,16 @@ export interface Translations {
     share: string;
     yes: string;
     no: string;
+    settings: string;
+    loadingTitle: string;
+    loadingSubtitle: string;
   };
   language: {
     portuguese: string;
     english: string;
     switchTo: string;
   };
+  demoTopics: string[];
 }
 
 const translations: Record<Language, Translations> = {
@@ -257,6 +279,8 @@ const translations: Record<Language, Translations> = {
       configureApi: 'Configure API',
       unlimitedUsage: 'Uso ilimitado',
       apiKeyRequired: 'Chave API necessária para gerar narrativas',
+      poweredBy: 'Desenvolvido com Google Gemini AI',
+      unspecifiedTopic: 'Tópico não especificado',
       emptyState: {
         title: 'Comece a explorar narrativas',
         description: 'Digite um tópico de interesse e descubra como diferentes perspectivas podem moldar uma narrativa jornalística.',
@@ -273,6 +297,13 @@ const translations: Record<Language, Translations> = {
     topicInput: {
       label: 'Tópico para a narrativa',
       placeholder: 'Digite o tema que deseja explorar...',
+      placeholderExamples: [
+        'Impactos da inteligência artificial na educação',
+        'Mudanças climáticas e agricultura sustentável',
+        'O futuro do trabalho remoto no Brasil',
+        'Tecnologia blockchain na saúde pública',
+        'Energias renováveis e desenvolvimento econômico'
+      ],
       examples: 'Exemplos',
       generate: 'Gerar',
       generating: 'Gerando...',
@@ -286,6 +317,16 @@ const translations: Record<Language, Translations> = {
       copyArticle: 'Copiar Artigo',
       copied: 'Copiado!',
       shareArticle: 'Compartilhar',
+      demoMessage: 'Artigo de demonstração - Configure sua API para conteúdo personalizado',
+      generatedArticle: 'Artigo Gerado',
+      showMore: 'Mostrar mais',
+      showLess: 'Mostrar menos',
+      copy: 'Copiar',
+      share: 'Compartilhar',
+      noArticlesYet: 'Nenhum artigo gerado ainda',
+      articlesWillAppear: 'Seus artigos aparecerão aqui após a geração',
+      generationHistory: 'Histórico de Gerações',
+      showingRecent: 'Mostrando os 5 artigos mais recentes',
     },
     configModal: {
       title: 'Configuração da API',
@@ -425,12 +466,47 @@ const translations: Record<Language, Translations> = {
       share: 'Compartilhar',
       yes: 'Sim',
       no: 'Não',
+      settings: 'Configurações',
+      loadingTitle: 'Carregando...',
+      loadingSubtitle: 'Preparando o simulador de narrativas',
     },
     language: {
       portuguese: 'Português',
       english: 'English',
       switchTo: 'Mudar para',
     },
+    demoTopics: [
+      'Descoberta de uma nova cor primária',
+      'Cientistas confirmam que plantas podem fazer fotossíntese no escuro',
+      'Arqueólogos encontram evidências de que dinossauros usavam ferramentas',
+      'Físicos descobrem que a gravidade funciona ao contrário às quintas-feiras',
+      'Pesquisadores comprovam que gatos domésticos são alienígenas disfarçados',
+      'Biólogos descobrem que árvores se comunicam através de redes sociais',
+      'Matemáticos provam que 2+2 pode ser igual a 5 em certas condições',
+      'Oceanógrafos encontram civilização perdida no fundo do oceano',
+      'Astrônomos detectam planeta feito inteiramente de chocolate',
+      'Linguistas descobrem idioma universal falado por todos os animais',
+      'Geólogos confirmam que montanhas crescem durante a lua cheia',
+      'Neurocientistas descobrem que sonhos podem ser baixados como arquivos',
+      'Químicos criam elemento que torna objetos invisíveis',
+      'Antropólogos encontram evidências de que humanos antigos voavam',
+      'Meteorologistas descobrem como controlar o clima com música clássica',
+      'Botânicos criam plantas que produzem energia elétrica',
+      'Zoólogos descobrem que pinguins são na verdade robôs da natureza',
+      'Físicos quânticos provam que o tempo anda para trás aos domingos',
+      'Arqueólogos descobrem biblioteca com livros do futuro',
+      'Biólogos marinhos encontram peixes que falam 12 idiomas',
+      'Engenheiros criam máquina que transforma pensamentos em realidade',
+      'Psicólogos descobrem que rir por 10 minutos equivale a 2 horas de exercício',
+      'Historiadores encontram evidências de que pirâmides eram estações espaciais',
+      'Cientistas da computação criam IA que resolve problemas dormindo',
+      'Ecologistas descobrem floresta que se move 50km por ano',
+      'Médicos descobrem que cantar ópera cura resfriados instantaneamente',
+      'Engenheiros desenvolvem ponte que se constrói sozinha',
+      'Paleontólogos descobrem que dinossauros tinham redes sociais primitivas',
+      'Físicos criam portal que conecta geladeiras do mundo todo',
+      'Sociólogos descobrem que sociedades funcionam melhor com música ambiente'
+    ],
   },
   [SUPPORTED_LANGUAGES.EN]: {
     header: {
@@ -472,6 +548,8 @@ const translations: Record<Language, Translations> = {
       configureApi: 'Configure API',
       unlimitedUsage: 'Unlimited usage',
       apiKeyRequired: 'API key required to generate narratives',
+      poweredBy: 'Powered by Google Gemini AI',
+      unspecifiedTopic: 'Topic not specified',
       emptyState: {
         title: 'Start exploring narratives',
         description: 'Enter a topic of interest and discover how different perspectives can shape a journalistic narrative.',
@@ -488,6 +566,13 @@ const translations: Record<Language, Translations> = {
     topicInput: {
       label: 'Topic for the narrative',
       placeholder: 'Enter the topic you want to explore...',
+      placeholderExamples: [
+        'Impacts of artificial intelligence on education',
+        'Climate change and sustainable agriculture',
+        'The future of remote work in modern society',
+        'Blockchain technology in public healthcare',
+        'Renewable energy and economic development'
+      ],
       examples: 'Examples',
       generate: 'Generate',
       generating: 'Generating...',
@@ -501,6 +586,16 @@ const translations: Record<Language, Translations> = {
       copyArticle: 'Copy Article',
       copied: 'Copied!',
       shareArticle: 'Share',
+      demoMessage: 'Demo article - Configure your API for personalized content',
+      generatedArticle: 'Generated Article',
+      showMore: 'Show more',
+      showLess: 'Show less',
+      copy: 'Copy',
+      share: 'Share',
+      noArticlesYet: 'No articles generated yet',
+      articlesWillAppear: 'Your articles will appear here after generation',
+      generationHistory: 'Generation History',
+      showingRecent: 'Showing the 5 most recent articles',
     },
     configModal: {
       title: 'API Configuration',
@@ -640,12 +735,47 @@ const translations: Record<Language, Translations> = {
       share: 'Share',
       yes: 'Yes',
       no: 'No',
+      settings: 'Settings',
+      loadingTitle: 'Loading...',
+      loadingSubtitle: 'Preparing the narrative simulator',
     },
     language: {
       portuguese: 'Português',
       english: 'English',
       switchTo: 'Switch to',
     },
+    demoTopics: [
+      'Discovery of a new primary color',
+      'Scientists confirm plants can photosynthesize in the dark',
+      'Archaeologists find evidence that dinosaurs used tools',
+      'Physicists discover gravity works backwards on Thursdays',
+      'Researchers prove domestic cats are disguised aliens',
+      'Biologists discover trees communicate through social networks',
+      'Mathematicians prove 2+2 can equal 5 under certain conditions',
+      'Oceanographers find lost civilization at ocean bottom',
+      'Astronomers detect planet made entirely of chocolate',
+      'Linguists discover universal language spoken by all animals',
+      'Geologists confirm mountains grow during full moon',
+      'Neuroscientists discover dreams can be downloaded as files',
+      'Chemists create element that makes objects invisible',
+      'Anthropologists find evidence ancient humans could fly',
+      'Meteorologists discover how to control weather with classical music',
+      'Botanists create plants that produce electrical energy',
+      'Zoologists discover penguins are actually nature\'s robots',
+      'Quantum physicists prove time runs backwards on Sundays',
+      'Archaeologists discover library with books from the future',
+      'Marine biologists find fish that speak 12 languages',
+      'Engineers create machine that transforms thoughts into reality',
+      'Psychologists discover laughing for 10 minutes equals 2 hours of exercise',
+      'Historians find evidence pyramids were space stations',
+      'Computer scientists create AI that solves problems while sleeping',
+      'Ecologists discover forest that moves 50km per year',
+      'Doctors discover singing opera instantly cures colds',
+      'Engineers develop bridge that builds itself',
+      'Paleontologists discover dinosaurs had primitive social networks',
+      'Physicists create portal connecting refrigerators worldwide',
+      'Sociologists discover societies work better with ambient music'
+    ],
   },
 };
 
