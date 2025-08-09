@@ -31,7 +31,15 @@ export const STORAGE_KEYS = {
   GENERATION_HISTORY: 'narratives_history',
   USAGE: 'narratives_usage',
   PREFERENCES: 'narratives_preferences',
+  LANGUAGE: 'narratives_language',
 } as const;
+
+export const SUPPORTED_LANGUAGES = {
+  PT: 'pt-BR',
+  EN: 'en-US',
+} as const;
+
+export type Language = typeof SUPPORTED_LANGUAGES[keyof typeof SUPPORTED_LANGUAGES];
 
 export const LIMITS = {
   TOPIC_MAX_LENGTH: 200,

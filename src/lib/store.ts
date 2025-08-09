@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { AppState, ApiState, GenerationHistory, ApiUsage } from '../types';
-import { STORAGE_KEYS, LIMITS } from './constants';
+import { STORAGE_KEYS, LIMITS, SUPPORTED_LANGUAGES, Language } from './constants';
 import { generateSessionId, security } from './security';
 import { NarrativeGenerator } from './api';
 
@@ -346,6 +346,48 @@ export const useApiStore = create<ApiStore>((set, get) => {
           success: false,
           error: error instanceof Error ? error.message : 'Erro na geração'
         };
+      }
+    },
+  };
+});
+
+interface LanguageStore {
+  currentLanguage: Language;
+  setLanguage: (language: Language) => void;
+  isPortuguese: boolean;
+  isEnglish: boolean;
+}
+
+export const useLanguageStore = create<LanguageStore>((set, get) => {
+  const getStoredLanguage = (): Language => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
+      if (stored && Object.values(SUPPORTED_LANGUAGES).includes(stored as Language)) {
+        return stored as Language;
+      }
+      return SUPPORTED_LANGUAGES.PT;
+    } catch {
+      return SUPPORTED_LANGUAGES.PT;
+    }
+  };
+
+  const initialLanguage = getStoredLanguage();
+
+  return {
+    currentLanguage: initialLanguage,
+    isPortuguese: initialLanguage === SUPPORTED_LANGUAGES.PT,
+    isEnglish: initialLanguage === SUPPORTED_LANGUAGES.EN,
+
+    setLanguage: (language: Language) => {
+      try {
+        localStorage.setItem(STORAGE_KEYS.LANGUAGE, language);
+        set({
+          currentLanguage: language,
+          isPortuguese: language === SUPPORTED_LANGUAGES.PT,
+          isEnglish: language === SUPPORTED_LANGUAGES.EN,
+        });
+      } catch (error) {
+        console.warn('Error saving language preference:', error);
       }
     },
   };

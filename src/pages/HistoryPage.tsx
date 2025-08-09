@@ -6,6 +6,7 @@ import { ArticleDisplay } from '../components/ArticleDisplay';
 import { PulseButton } from '../components/GenerateButton';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { toast } from 'sonner';
+import { useTranslation } from '../hooks/useTranslation';
 import type { GenerationHistory } from '../types';
 
 export function HistoryPage() {
@@ -14,6 +15,7 @@ export function HistoryPage() {
   
   const { history, clearHistory, removeFromHistory } = useApiStore();
   const { setCurrentView } = useAppStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.log('[HistoryPage] Component mounted');
@@ -81,14 +83,14 @@ export function HistoryPage() {
     if (selectedArticle?.id === articleId) {
       setSelectedArticle(null);
     }
-    toast.success('Artigo removido do histórico');
+    toast.success(t('common.success'));
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+    if (window.confirm(t('history.confirmClear'))) {
       clearHistory();
       setSelectedArticle(null);
-      toast.success('Histórico limpo com sucesso');
+      toast.success(t('common.success'));
     }
   };
 
@@ -132,10 +134,10 @@ export function HistoryPage() {
               
               <div>
                 <h1 className="font-display font-bold text-2xl text-foreground">
-                  Histórico de Gerações
+                  {t('history.title')}
                 </h1>
                 <p className="text-muted-foreground">
-                  {safeHistory.length} {safeHistory.length === 1 ? 'artigo gerado' : 'artigos gerados'}
+                  {safeHistory.length} {safeHistory.length === 1 ? t('history.article') : t('history.articles')}
                 </p>
               </div>
             </div>
@@ -146,7 +148,7 @@ export function HistoryPage() {
                 className="flex items-center space-x-2 text-red-600 hover:text-red-700"
               >
                 <Trash2 className="w-4 h-4" />
-                <span>Limpar Tudo</span>
+                <span>{t('history.clear')}</span>
               </PulseButton>
             )}
           </div>
@@ -162,7 +164,7 @@ export function HistoryPage() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Buscar por tópico ou conteúdo..."
+                    placeholder={t('history.searchPlaceholder')}
                     className={cn(
                       "input-neumorphic w-full pl-10",
                       "focus:ring-2 focus:ring-primary/20"
@@ -175,10 +177,10 @@ export function HistoryPage() {
                 <div className="text-center py-12">
                   <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="font-medium text-foreground mb-2">
-                    Nenhum resultado encontrado
+                    {t('history.noResults')}
                   </h3>
                   <p className="text-muted-foreground">
-                    Tente buscar por outros termos
+                    {t('history.tryOtherTerms')}
                   </p>
                 </div>
               ) : (
@@ -204,16 +206,16 @@ export function HistoryPage() {
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="text-center py-16">
             <h3 className="font-display font-semibold text-xl text-foreground mb-2">
-              Erro ao carregar histórico
+              {t('history.loadError')}
             </h3>
             <p className="text-muted-foreground mb-6">
-              Ocorreu um erro ao carregar o histórico. Tente recarregar a página.
+              {t('history.loadErrorDescription')}
             </p>
             <PulseButton
               onClick={() => window.location.reload()}
               className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3"
             >
-              Recarregar
+              {t('history.reload')}
             </PulseButton>
           </div>
         </div>
@@ -239,6 +241,7 @@ function HistoryCard({
   onDelete: () => void;
   searchTerm: string;
 }) {
+  const { t } = useTranslation();
   const highlightText = (text: string, highlight: string) => {
     if (!highlight.trim()) return text;
     
@@ -304,7 +307,7 @@ function HistoryCard({
               "text-red-600 hover:bg-red-50",
               "transition-colors"
             )}
-            title="Excluir artigo"
+            title={t('history.deleteArticle')}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -320,7 +323,7 @@ function HistoryCard({
           onClick={onSelect}
           className="text-sm px-4 py-2"
         >
-          Ver Artigo
+          {t('history.viewArticle')}
         </PulseButton>
       </div>
     </div>
@@ -328,6 +331,8 @@ function HistoryCard({
 }
 
 function EmptyHistoryState() {
+  const { t } = useTranslation();
+  
   return (
     <div className="text-center py-16">
       <div className={cn(
@@ -338,11 +343,11 @@ function EmptyHistoryState() {
       </div>
       
       <h3 className="font-display font-semibold text-xl text-foreground mb-2">
-        Nenhum artigo no histórico
+        {t('history.empty')}
       </h3>
       
       <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-        Seus artigos gerados aparecerão aqui. Comece criando seu primeiro artigo no gerador.
+        {t('history.emptyDescription')}
       </p>
       
       <PulseButton
@@ -352,7 +357,7 @@ function EmptyHistoryState() {
           "hover:bg-primary/90 px-6 py-3"
         )}
       >
-        Ir para o Gerador
+        {t('history.goToGenerator')}
       </PulseButton>
     </div>
   );

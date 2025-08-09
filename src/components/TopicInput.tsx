@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { cn } from '../lib/utils';
 import { validateTopic } from '../lib/security';
 import { getRandomDemoTopics } from '../lib/constants';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface TopicInputProps {
   value: string;
@@ -17,14 +18,17 @@ export function TopicInput({
   onChange, 
   onSubmit, 
   disabled = false,
-  placeholder = "Insira um tema absurdo. Ex: 'Descoberta de uma nova cor primária'",
+  placeholder,
   error: externalError
 }: TopicInputProps) {
+  const { t } = useTranslation();
   const [internalError, setInternalError] = useState<string>();
   const error = externalError || internalError;
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const defaultPlaceholder = placeholder || t('topicInput.placeholder');
   
   const dynamicTopics = useMemo(() => getRandomDemoTopics(5), []);
 
@@ -99,7 +103,7 @@ export function TopicInput({
           onKeyDown={handleKeyPress}
           onFocus={handleFocus}
           disabled={disabled}
-          placeholder={placeholder}
+          placeholder={defaultPlaceholder}
           className={cn(
             "input-neumorphic w-full text-center font-medium py-4 px-6 text-lg",
             "placeholder:text-muted-foreground/60",
@@ -147,7 +151,7 @@ export function TopicInput({
         )}>
           <div className="p-3">
             <p className="text-xs text-muted-foreground mb-3 font-medium">
-              Sugestões de temas:
+              {t('topicInput.suggestions')}
             </p>
             <div className="space-y-1">
               {dynamicTopics.map((topic, index) => (

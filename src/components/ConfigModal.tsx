@@ -4,6 +4,7 @@ import { cn } from '../lib/utils';
 import { security } from '../lib/security';
 import { GOOGLE_AI_STUDIO_URL } from '../lib/constants';
 import { PulseButton } from './GenerateButton';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface ConfigModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export function ConfigModal({
   onSaveApiKey, 
   onRemoveApiKey 
 }: ConfigModalProps) {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState('');
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
@@ -63,12 +65,12 @@ export function ConfigModal({
 
   const handleSave = async () => {
     if (!apiKey.trim()) {
-      setError('Por favor, insira uma chave de API.');
+      setError(t('configModal.enterApiKey'));
       return;
     }
 
     if (!security.validateApiKey(apiKey.trim())) {
-      setError('Formato de chave de API inválido.');
+      setError(t('configModal.invalidFormat'));
       return;
     }
 
@@ -83,10 +85,10 @@ export function ConfigModal({
       if (success) {
         onClose();
       } else {
-        setError('Erro ao salvar a chave de API. Verifique se está correta.');
+        setError(t('configModal.saveError'));
       }
     } catch {
-      setError('Erro inesperado. Tente novamente.');
+      setError(t('configModal.unexpectedError'));
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +131,7 @@ export function ConfigModal({
               <Key className="w-5 h-5 text-primary" />
             </div>
             <h2 className="text-title font-display text-foreground">
-              Configuração da API
+              {t('configModal.title')}
             </h2>
           </div>
           
@@ -154,14 +156,14 @@ export function ConfigModal({
           )}>
             <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">Para uso ilimitado:</p>
-              <p>Configure sua chave de API do Google AI Studio para gerar narrativas sem limites diários.</p>
+              <p className="font-medium mb-1">{t('configModal.unlimitedUseTitle')}</p>
+              <p>{t('configModal.unlimitedUseDescription')}</p>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Chave de API do Google AI Studio
+              {t('configModal.apiKeyLabel')}
             </label>
             
             <div className="relative">
@@ -174,7 +176,7 @@ export function ConfigModal({
                   if (error) setError(undefined);
                 }}
                 onKeyDown={handleKeyPress}
-                placeholder="Cole sua chave de API aqui..."
+                placeholder={t('configModal.apiKeyPlaceholder')}
                 className={cn(
                   "input-neumorphic w-full pr-10",
                   "font-mono text-sm",
@@ -216,7 +218,7 @@ export function ConfigModal({
                 "transition-colors font-medium"
               )}
             >
-              <span>Obter chave no Google AI Studio</span>
+              <span>{t('configModal.getApiKey')}</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -229,7 +231,7 @@ export function ConfigModal({
               disabled={isLoading}
               className="flex-1 text-red-600 hover:text-red-700"
             >
-              Remover Chave
+              {t('configModal.removeKey')}
             </PulseButton>
           )}
           
@@ -244,10 +246,10 @@ export function ConfigModal({
             {isLoading ? (
               <span className="flex items-center justify-center space-x-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Salvando...</span>
+                <span>{t('configModal.saving')}</span>
               </span>
             ) : (
-              'Salvar Chave'
+              t('configModal.saveKey')
             )}
           </PulseButton>
         </div>

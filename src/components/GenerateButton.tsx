@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface GenerateButtonProps {
   onClick: () => void;
@@ -14,17 +15,18 @@ export function GenerateButton({
   loading = false,
   hasCustomKey = false
 }: GenerateButtonProps) {
+  const { t } = useTranslation();
   const isDisabled = disabled || loading || !hasCustomKey;
   
   const getButtonText = () => {
-    if (loading) return 'Gerando...';
-    if (!hasCustomKey) return 'Configure API';
-    return 'Gerar Notícia';
+    if (loading) return t('generator.generating');
+    if (!hasCustomKey) return t('generator.configureApi');
+    return t('generator.generateButton');
   };
 
   const getUsageText = () => {
-    if (hasCustomKey) return 'Uso ilimitado';
-    return 'Configure sua chave de API';
+    if (hasCustomKey) return t('generator.unlimitedUsage');
+    return t('generator.configureApiKey');
   };
 
   return (
@@ -72,7 +74,7 @@ export function GenerateButton({
         
         {!hasCustomKey && (
           <p className="text-xs text-blue-600 mt-1 font-medium">
-            Chave API necessária para gerar narrativas
+            {t('generator.apiKeyRequired')}
           </p>
         )}
       </div>

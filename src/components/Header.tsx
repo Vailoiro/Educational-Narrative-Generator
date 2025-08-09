@@ -3,6 +3,8 @@ import { Settings, BookOpen, History, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { PulseButton } from './GenerateButton';
 import { TrialCounter } from './TrialCounter';
+import { LanguageSelector } from './LanguageSelector';
+import { useTranslation } from '../hooks/useTranslation';
 import type { AppView } from '../types';
 
 interface HeaderProps {
@@ -18,26 +20,26 @@ export function Header({
   onOpenConfig, 
   hasCustomApiKey
 }: HeaderProps) {
-
+  const { t } = useTranslation();
 
   const navItems = [
     {
       id: 'generator' as AppView,
-      label: 'Gerador',
+      label: t('header.generator'),
       icon: BookOpen,
-      description: 'Criar novos artigos'
+      description: t('header.generatorDescription')
     },
     {
       id: 'history' as AppView,
-      label: 'Histórico',
+      label: t('header.history'),
       icon: History,
-      description: 'Ver artigos anteriores'
+      description: t('header.historyDescription')
     },
     {
       id: 'about' as AppView,
-      label: 'Sobre',
+      label: t('header.about'),
       icon: Info,
-      description: 'Informações do projeto'
+      description: t('header.aboutDescription')
     }
   ];
 
@@ -65,10 +67,10 @@ export function Header({
                 "bg-gradient-to-r from-foreground to-foreground/80",
                 "bg-clip-text"
               )}>
-                Simulador de Narrativas
+                {t('header.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Exploração educativa de narrativas jornalísticas
+                {t('header.subtitle')}
               </p>
             </div>
           </div>
@@ -113,9 +115,11 @@ export function Header({
                   hasCustomApiKey ? "bg-green-500" : "bg-red-500"
                 )} />
                 <span className="text-xs font-medium text-muted-foreground">
-                  {hasCustomApiKey ? 'API Configurada' : 'API Não Configurada'}
+                  {hasCustomApiKey ? t('header.apiConfigured') : t('header.apiNotConfigured')}
                 </span>
               </div>
+
+              <LanguageSelector />
 
               <PulseButton
                 onClick={onOpenConfig}
@@ -126,7 +130,7 @@ export function Header({
                     ? "text-green-600 bg-green-50 hover:bg-green-100" 
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="Configurar API"
+                title={t('header.configureApi')}
               >
                 <Settings className="w-6 h-6" />
               </PulseButton>
@@ -173,10 +177,12 @@ export function MobileNav({
   currentView: AppView; 
   onViewChange: (view: AppView) => void; 
 }) {
+  const { t } = useTranslation();
+  
   const navItems = [
-    { id: 'generator' as AppView, label: 'Gerador', icon: BookOpen },
-    { id: 'history' as AppView, label: 'Histórico', icon: History },
-    { id: 'about' as AppView, label: 'Sobre', icon: Info }
+    { id: 'generator' as AppView, label: t('header.generator'), icon: BookOpen },
+    { id: 'history' as AppView, label: t('header.history'), icon: History },
+    { id: 'about' as AppView, label: t('header.about'), icon: Info }
   ];
 
   return (

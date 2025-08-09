@@ -3,6 +3,7 @@ import { Sparkles, AlertCircle, Target, Shield, Lightbulb, BookOpen } from 'luci
 import { cn } from '../lib/utils';
 import { useAppStore } from '../lib/store';
 import { useApiStore } from '../lib/store';
+import { useTranslation } from '../hooks/useTranslation';
 import { TopicInput } from '../components/TopicInput';
 import { GenerateButton, LoadingRing, PulseButton } from '../components/GenerateButton';
 import { ArticleDisplay } from '../components/ArticleDisplay';
@@ -32,6 +33,8 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
     isTrialMode,
     freeAttemptsRemaining
   } = useApiStore();
+  
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (error) {
@@ -135,11 +138,11 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
           "bg-gradient-to-r from-foreground to-foreground/80",
           "bg-clip-text text-transparent"
         )}>
-          Gerador de Narrativas
+          {t('generator.title')}
         </h1>
         
         <p className="text-muted-foreground text-lg leading-relaxed max-w-lg mx-auto">
-          Uma ferramenta educativa para explorar diferentes perspectivas jornalísticas e desenvolver pensamento crítico sobre narrativas na mídia.
+          {t('generator.subtitle')}
         </p>
       </div>
 
@@ -158,7 +161,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
                 "hover:text-blue-900 cursor-pointer"
               )}
             >
-              Você tem {freeAttemptsRemaining} tentativa{freeAttemptsRemaining !== 1 ? 's' : ''} gratuita{freeAttemptsRemaining !== 1 ? 's' : ''}. Configure sua chave de API para uso ilimitado.
+              {t('generator.freeTrialMessage', { count: freeAttemptsRemaining })}
             </button>
           </div>
         </div>
@@ -179,7 +182,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
                 "hover:text-red-900 cursor-pointer"
               )}
             >
-              Tentativas gratuitas esgotadas. Configure sua chave de API para continuar.
+              {t('generator.freeTrialExhausted')}
             </button>
           </div>
         </div>
@@ -204,7 +207,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
           )}>
             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-red-800">
-              <p className="font-medium mb-1">Erro na geração</p>
+              <p className="font-medium mb-1">{t('generator.errorTitle')}</p>
               <p>{error}</p>
             </div>
           </div>
@@ -216,10 +219,10 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
               <LoadingRing />
               <div className="text-center">
                 <p className="font-medium text-foreground mb-1">
-                  Gerando artigo...
+                  {t('generator.generating')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Isso pode levar alguns segundos
+                  {t('generator.generatingSubtext')}
                 </p>
               </div>
             </div>
@@ -249,30 +252,26 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
         <div className="grid md:grid-cols-2 gap-8">
           <div className="card-neumorphic">
             <h2 className="font-display font-semibold text-xl text-foreground mb-4">
-              🎯 Missão
+              🎯 {t('about.mission.title')}
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Capacitar estudantes, jornalistas e educadores com uma ferramenta que demonstra 
-              como diferentes perspectivas podem moldar a narrativa de um mesmo evento, 
-              promovendo maior consciência sobre viés midiático e literacia digital.
+              {t('about.mission.description')}
             </p>
           </div>
 
           <div className="card-neumorphic">
             <h2 className="font-display font-semibold text-xl text-foreground mb-4">
-              🔬 Como Funciona
+              🔬 {t('about.howItWorks.title')}
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Utilizando inteligência artificial avançada (Google Gemini), o simulador 
-              gera artigos jornalísticos realistas baseados em tópicos fornecidos pelo usuário, 
-              sempre mantendo neutralidade e qualidade editorial.
+              {t('about.howItWorks.description')}
             </p>
           </div>
         </div>
 
         <div>
           <h2 className="font-display font-semibold text-2xl text-foreground mb-6 text-center">
-            Características Principais
+            {t('about.features.title')}
           </h2>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -285,11 +284,11 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
               </div>
               
               <h3 className="font-medium text-foreground mb-2">
-                Objetivo Educativo
+                {t('about.features.educational.title')}
               </h3>
               
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Desenvolver pensamento crítico sobre narrativas jornalísticas e diferentes perspectivas de um mesmo evento.
+                {t('about.features.educational.description')}
               </p>
             </div>
 
@@ -302,11 +301,11 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
               </div>
               
               <h3 className="font-medium text-foreground mb-2">
-                Ética e Responsabilidade
+                {t('about.features.ethics.title')}
               </h3>
               
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Promover o uso responsável da IA na criação de conteúdo, sempre com foco educacional e transparência.
+                {t('about.features.ethics.description')}
               </p>
             </div>
 
@@ -319,11 +318,11 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
               </div>
               
               <h3 className="font-medium text-foreground mb-2">
-                Exploração Criativa
+                {t('about.features.creative.title')}
               </h3>
               
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Permitir a exploração de diferentes ângulos jornalísticos de forma segura e controlada.
+                {t('about.features.creative.description')}
               </p>
             </div>
           </div>
@@ -333,7 +332,7 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
 
         <div>
           <h2 className="font-display font-semibold text-2xl text-foreground mb-6 text-center">
-            Uso Responsável
+            {t('about.responsibleUse.title')}
           </h2>
           
           <div className="card-neumorphic">
@@ -341,32 +340,32 @@ export function GeneratorPage({ onOpenConfig }: GeneratorPageProps) {
               <div className="flex items-start space-x-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                 <p>
-                  <strong className="text-foreground">Finalidade Educativa:</strong> 
-                  Esta ferramenta foi criada exclusivamente para fins educacionais e de pesquisa.
+                  <strong className="text-foreground">{t('about.responsibleUse.educational.title')}:</strong> 
+                  {t('about.responsibleUse.educational.description')}
                 </p>
               </div>
               
               <div className="flex items-start space-x-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                 <p>
-                  <strong className="text-foreground">Transparência:</strong> 
-                  Todo conteúdo gerado é claramente identificado como criado por IA.
+                  <strong className="text-foreground">{t('about.responsibleUse.transparency.title')}:</strong> 
+                  {t('about.responsibleUse.transparency.description')}
                 </p>
               </div>
               
               <div className="flex items-start space-x-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                 <p>
-                  <strong className="text-foreground">Não Publicação:</strong> 
-                  O conteúdo não deve ser usado como notícia real ou publicado sem contexto adequado.
+                  <strong className="text-foreground">{t('about.responsibleUse.noPublication.title')}:</strong> 
+                  {t('about.responsibleUse.noPublication.description')}
                 </p>
               </div>
               
               <div className="flex items-start space-x-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                 <p>
-                  <strong className="text-foreground">Pensamento Crítico:</strong> 
-                  Incentivamos sempre a verificação de fontes e análise crítica de qualquer narrativa.
+                  <strong className="text-foreground">{t('about.responsibleUse.criticalThinking.title')}:</strong> 
+                  {t('about.responsibleUse.criticalThinking.description')}
                 </p>
               </div>
             </div>
@@ -382,6 +381,8 @@ export function EmptyState({
 }: { 
   onGetStarted: () => void 
 }) {
+  const { t } = useTranslation();
+  
   return (
     <div className="text-center py-12">
       <div className={cn(
@@ -392,12 +393,11 @@ export function EmptyState({
       </div>
       
       <h3 className="font-display font-semibold text-xl text-foreground mb-2">
-        Comece a explorar narrativas
+        {t('generator.emptyState.title')}
       </h3>
       
       <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-        Digite um tópico de interesse e descubra como diferentes perspectivas 
-        podem moldar uma narrativa jornalística.
+        {t('generator.emptyState.description')}
       </p>
       
       <PulseButton
@@ -407,7 +407,7 @@ export function EmptyState({
           "hover:bg-primary/90 px-6 py-3"
         )}
       >
-        Começar Agora
+        {t('generator.emptyState.startButton')}
       </PulseButton>
     </div>
   );
