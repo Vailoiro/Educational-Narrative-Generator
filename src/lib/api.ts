@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GenerateRequest, GenerateResponse } from '../types';
 import { MASTER_PROMPT, API_CONFIG, ERROR_MESSAGES } from './constants';
 import { security, sanitizeApiResponse } from './security';
+import { getGeminiApiKey } from './supabase';
 
 
 
@@ -42,11 +43,17 @@ export class NarrativeGenerator {
       }
 
       if (!this.model) {
-        return {
-          success: false,
-          content: '',
-          error: 'Configure sua chave de API para usar o gerador.',
-        };
+        const systemApiKey = await getGeminiApiKey();
+        if (systemApiKey && security.validateApiKey(systemApiKey)) {
+          this.genAI = new GoogleGenerativeAI(systemApiKey);
+          this.model = this.genAI.getGenerativeModel({ model: API_CONFIG.MODEL });
+        } else {
+          return {
+            success: false,
+            content: '',
+            error: 'Configure sua chave de API para usar o gerador.',
+          };
+        }
       }
 
       const prompt = MASTER_PROMPT.replace('{TOPIC}', sanitizedTopic);

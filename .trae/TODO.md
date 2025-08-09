@@ -1,6 +1,7 @@
 # TODO:
 
-- [x] modify_translation_hook: Modificar useTranslation.ts para suportar interpolação de variáveis e pluralização (priority: High)
-- [x] implement_interpolation: Implementar lógica de interpolação para substituir {variableName} pelos valores (priority: High)
-- [x] implement_pluralization: Implementar lógica de pluralização para {count, plural, one {...} other {...}} (priority: High)
-- [x] test_translation_fix: Testar se a mensagem de tentativas gratuitas funciona corretamente (priority: Medium)
+- [x] create_system_config_table: Criar tabela system_config no Supabase para armazenar configurações do sistema (priority: High)
+- [x] install_supabase_dependency: Instalar dependência @supabase/supabase-js (priority: High)
+- [x] create_supabase_client: Criar src/lib/supabase.ts com cliente Supabase configurado (priority: High)
+- [x] modify_api_lib: Modificar src/lib/api.ts para buscar chave API do Supabase quando usuário não tem chave própria (priority: High)
+- [x] test_integration: Testar a integração e verificar se tentativas gratuitas funcionam corretamente (priority: Medium)
